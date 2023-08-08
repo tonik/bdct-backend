@@ -1,0 +1,79 @@
+swagger: "2.0"
+info:
+  title: Fastify API
+  description: Building a blazing fast REST API with Node.js, MongoDB, Fastify and Swagger
+  version: 0.1.0
+definitions:
+  Schema:
+    type: object
+    properties:
+      userSchemaRequest:
+        type: object
+        properties: &a1
+          id:
+            type: string
+        required:
+          - id
+        additionalProperties: false
+      userSchemaReply:
+        type: object
+        properties: &a2
+          id:
+            type: string
+          name:
+            type: string
+        required:
+          - id
+          - name
+        additionalProperties: false
+      userSchemaReplyArray:
+        type: array
+        items: &a3
+          $ref: "#/definitions/Schema/properties/userSchemaReply"
+    required:
+      - userSchemaRequest
+      - userSchemaReply
+      - userSchemaReplyArray
+    additionalProperties: false
+paths:
+  /users:
+    get:
+      operationId: getAllUsers
+      description: Get all users
+      responses:
+        "200":
+          description: Default Response
+          schema:
+            $ref: "#/definitions/Schema/properties/userSchemaReplyArray"
+  "/users/{id}":
+    get:
+      operationId: getUser
+      description: Get a user by id
+      parameters:
+        - type: object
+          properties: *a1
+          required: true
+          additionalProperties: false
+          in: path
+          name: userSchemaRequest
+        - type: object
+          properties: *a2
+          required: true
+          additionalProperties: false
+          in: path
+          name: userSchemaReply
+        - type: array
+          items: *a3
+          required: true
+          in: path
+          name: userSchemaReplyArray
+      responses:
+        "200":
+          description: Default Response
+          schema:
+            $ref: "#/definitions/Schema/properties/userSchemaReply"
+host: localhost
+schemes:
+  - http
+consumes:
+  - application/json

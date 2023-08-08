@@ -1,0 +1,67 @@
+openapi: 3.0.3
+info:
+  title: My provider
+  description: API
+  version: 0.1.0
+components:
+  schemas:
+    Schema:
+      type: object
+      properties:
+        userSchemaRequest:
+          type: object
+          properties:
+            id:
+              type: string
+          required:
+            - id
+          additionalProperties: false
+        userSchemaReply:
+          type: object
+          properties:
+            id:
+              type: number
+            name:
+              type: string
+          required:
+            - id
+            - name
+          additionalProperties: false
+        userSchemaReplyArray:
+          type: array
+          items:
+            $ref: "#/components/schemas/Schema/properties/userSchemaReply"
+      required:
+        - userSchemaRequest
+        - userSchemaReply
+        - userSchemaReplyArray
+      additionalProperties: false
+paths:
+  /users:
+    get:
+      operationId: getAllUsers
+      description: Get all users
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Schema/properties/userSchemaReplyArray"
+  "/users/{id}":
+    get:
+      operationId: getUser
+      description: Get a user by id
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Schema/properties/userSchemaReply"

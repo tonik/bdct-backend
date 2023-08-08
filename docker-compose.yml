@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+  can_i_deploy:
+    image: pactfoundation/pact-cli:latest
+    environment:
+      - PACT_BROKER_BASE_URL
+      - PACT_BROKER_TOKEN
+    command: >
+      pact-broker can-i-deploy 
+      --pacticipant ${PACTICIPANT} 
+      --version ${VERSION} 
+      --to-environment ${DEPLOYMENT_TARGET} 
+      --retry-while-unknown 6 
+      --retry-interval 10
+    volumes:
+      - ./:/${PWD}
+  record_deployment:
+    image: pactfoundation/pact-cli:latest
+    command: >
+      pact-broker record_deployment 
+      --pacticipant ${PACTICIPANT} 
+      --version ${VERSION} 
+      --environment ${DEPLOYMENT_TARGET}
+    volumes:
+      - ./:/${PWD}
+    environment:
+      - PACT_BROKER_BASE_URL
+      - PACT_BROKER_TOKEN
+  publish_provider_contract:
+    image: pactfoundation/pact-cli:latest
+    working_dir: /app
+    environment:
+      - PACT_BROKER_BASE_URL=${PACT_BROKER_BASE_URL}
+      - PACT_BROKER_TOKEN=${PACT_BROKER_TOKEN}
+      - VERSION=${VERSION}
+      - GIT_BRANCH=${GIT_BRANCH}
+    volumes:
+      - ./:/app
+    command: >
+      /bin/sh -c "pactflow publish-provider-contract ${OAS_PATH}
+      --provider ${PACTICIPANT} 
+      --provider-app-version $${VERSION} 
+      --branch $${GIT_BRANCH} 
+      --content-type application/yaml 
+      --verification-exit-code=0 
+      --verification-results ${REPORT_PATH} 
+      --verification-results-content-type ${REPORT_FILE_CONTENT_TYPE}
+      --verifier ${VERIFIER_TOOL}"
